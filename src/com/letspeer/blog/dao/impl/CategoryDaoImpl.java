@@ -109,6 +109,7 @@ public class CategoryDaoImpl implements CategoryDao {
 			if (result.next()) {
 				Category category = new Category();
 				category.setCategoryName("category_name");
+				category.setId(result.getInt("id"));
 				category.setDeleted(result.getString("deleted").equals('0') ? false : true);
 			
 				return category;
@@ -148,7 +149,7 @@ public class CategoryDaoImpl implements CategoryDao {
 			while (result.next()) {
 			
 				Category category = new Category();
-				
+				category.setId(result.getInt("id"));
 				category.setCategoryName("category_name");
 				category.setDeleted(result.getString("deleted").equals('0') ? false : true);
 		
@@ -182,13 +183,41 @@ public class CategoryDaoImpl implements CategoryDao {
 
 	@Override
 	public Boolean updateCategory(Category category) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+
+			String stmt = "UPDATE categories SET "
+					+ "category_name=? ,deleted=? "
+					+ "WHERE id=?";
+			connectDb();
+			PreparedStatement pStmt = connection.prepareStatement(stmt);
+			pStmt.setString(1, category.getCategoryName());
+
+			if (category.getDeleted()) {
+				pStmt.setString(2, "1");
+			} else {
+				pStmt.setString(2, "0");
+			}
+			pStmt.setInt(3, category.getId());
+			Boolean result = pStmt.execute();
+			return result;
+		} catch (Exception exp) {
+			exp.printStackTrace();
+		} finally {
+			disconnectDb();
+		}
+
+		return false;
 	}
 
 	@Override
 	public void deleteCategory(Integer id) {
-		// TODO Auto-generated method stub
+		
+		Category c = getCategoryById(id);
+		//System.out.println(c.getCategoryName());
+		
+		c.setDeleted(true);
+		updateCategory(c);
+
 		
 	}
 
