@@ -1,4 +1,7 @@
 package com.letspeer.blog.dao.impl;
+/**
+* author alaa abuzaghleh
+**/
 
 import java.sql.Connection;
 import java.sql.DriverManager;
