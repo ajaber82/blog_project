@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.letspeer.blog.model.Tag;
 
+
+//test
 public interface TagDao extends BaseDao {
 
 	public Integer addTag(Tag tag);

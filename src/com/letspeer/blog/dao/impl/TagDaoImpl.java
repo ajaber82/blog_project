@@ -24,6 +24,8 @@ public class TagDaoImpl implements TagDao {
 		this.dbUserPwd = dbUserPwd;
 	}
 
+	//test
+	
 	@Override
 	public void connectDb() {
 		try {
