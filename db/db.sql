@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `attachment`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `attachment` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `deleted` char(1) DEFAULT NULL,
   `blog_id` int(11) DEFAULT NULL,
   `file_bath` varchar(500) DEFAULT NULL,
@@ -62,7 +62,7 @@ CREATE TABLE `blog_entries` (
   KEY `fk_blog_enries_categories_idx` (`cat_id`),
   CONSTRAINT `fk_blog_enries_categories` FOREIGN KEY (`cat_id`) REFERENCES `categories` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_blog_entries_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,7 +71,6 @@ CREATE TABLE `blog_entries` (
 
 LOCK TABLES `blog_entries` WRITE;
 /*!40000 ALTER TABLE `blog_entries` DISABLE KEYS */;
-INSERT INTO `blog_entries` VALUES (1,'Ronaldo when france football prize','Ronaldo when france football prizeRonaldo when france football prizeRonaldo when france football prizeRonaldo when france football prizeRonaldo when france football prizeRonaldo when france football prize Ronaldo when france football prize Ronaldo when france football prize',2,1,1508992078,'0'),(2,'صراع إنجليزي إسباني على نجم بايرن ميونخ','شفت تقارير صحفية اليوم الأربعاء، عن اهتمام عملاقين من إسبانيا وإنجلترا، بالتعاقد مع نجم بايرن ميونخ الألماني خلال الفترة المقبلة.',2,2,1508992088,'0');
 /*!40000 ALTER TABLE `blog_entries` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,7 +98,6 @@ CREATE TABLE `blog_entries_tags_ref` (
 
 LOCK TABLES `blog_entries_tags_ref` WRITE;
 /*!40000 ALTER TABLE `blog_entries_tags_ref` DISABLE KEYS */;
-INSERT INTO `blog_entries_tags_ref` VALUES (1,1,'0'),(1,2,'0');
 /*!40000 ALTER TABLE `blog_entries_tags_ref` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -115,7 +113,7 @@ CREATE TABLE `categories` (
   `category_name` varchar(200) DEFAULT NULL,
   `deleted` char(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,7 +122,6 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,'News',NULL),(2,'Sports',NULL),(3,'news','0'),(4,'news','0'),(5,'news','0'),(6,'news','0'),(7,'news','0');
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -147,7 +144,7 @@ CREATE TABLE `comments` (
   KEY `fk_comments_blog_entries_idx` (`blog_id`),
   CONSTRAINT `fk_comments_blog_entries` FOREIGN KEY (`blog_id`) REFERENCES `blog_entries` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_comments_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -156,7 +153,6 @@ CREATE TABLE `comments` (
 
 LOCK TABLES `comments` WRITE;
 /*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-INSERT INTO `comments` VALUES (1,'I like this ',1508992078,'0',2,1);
 /*!40000 ALTER TABLE `comments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +168,7 @@ CREATE TABLE `tags` (
   `tag_name` varchar(100) DEFAULT NULL,
   `deleted` char(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,7 +177,6 @@ CREATE TABLE `tags` (
 
 LOCK TABLES `tags` WRITE;
 /*!40000 ALTER TABLE `tags` DISABLE KEYS */;
-INSERT INTO `tags` VALUES (1,'Messi','0'),(2,'Ronaldo','0');
 /*!40000 ALTER TABLE `tags` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -202,7 +197,7 @@ CREATE TABLE `users` (
   `about_me` text,
   `deleted` char(1) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -211,7 +206,6 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(2,'abdullah','jaber','ajaber82@hotmail.com','123','ert.jpg','I am software engineer','0'),(10,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(11,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(14,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(15,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(16,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(17,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(18,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(19,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(20,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(21,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(22,'fName','lName','u@xyz.com','pwd','pic1.jpg','something','0'),(23,'fName','lName','u@xyz.com',NULL,'pic1.jpg','something','1'),(24,'fName','lName','u@xyz.com',NULL,'pic1.jpg','something','1');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -224,4 +218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-11-03  0:23:04
+-- Dump completed on 2017-11-08 23:01:35
