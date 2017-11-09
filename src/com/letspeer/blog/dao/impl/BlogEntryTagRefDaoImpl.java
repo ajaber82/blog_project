@@ -9,16 +9,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.letspeer.blog.dao.CategoryDao;
-import com.letspeer.blog.model.Category;
+import com.letspeer.blog.dao.BlogEntryTagRefDao;
+import com.letspeer.blog.model.BlogEntryTagRef;
 
-public class CategoryDaoImpl implements CategoryDao {
+public class BlogEntryTagRefDaoImpl implements BlogEntryTagRefDao {
+
 	private String dbUrl;
 	private String dbUser;
 	private String dbUserPwd;
 	private Connection connection;
 
-	public CategoryDaoImpl(String dbUrl, String dbUser, String dbUserPwd) {
+	public BlogEntryTagRefDaoImpl(String dbUrl, String dbUser, String dbUserPwd) {
 		this.dbUrl = dbUrl;
 		this.dbUser = dbUser;
 		this.dbUserPwd = dbUserPwd;
@@ -35,7 +36,6 @@ public class CategoryDaoImpl implements CategoryDao {
 		} catch (Exception exp) {
 			exp.printStackTrace();
 		}
-
 	}
 
 	@Override
@@ -51,19 +51,19 @@ public class CategoryDaoImpl implements CategoryDao {
 	}
 
 	@Override
-	public Integer addCategory(Category category) {
-
+	public Integer addBlogEntryTagRef(BlogEntryTagRef blogEntryTagRef) {
 		ResultSet rs = null;
 		try {
-			String stmt = "INSERT INTO categories " + "(`category_name`,`deleted`) VALUES" + "(?,?)";
+			String stmt = "INSERT INTO blog_entries_tag_ref " + "(`blog_id`,`tag_id`,`deleted`) VALUES" + "(?,?,?)";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(stmt, Statement.RETURN_GENERATED_KEYS);
-			pStmt.setString(1, category.getCategoryName());
+			pStmt.setInt(1, blogEntryTagRef.getBlogId());
+			pStmt.setInt(2, blogEntryTagRef.getTagId());
 
-			if (category.getDeleted()) {
-				pStmt.setString(2, "1");
+			if (blogEntryTagRef.getDeleted()) {
+				pStmt.setString(3, "1");
 			} else {
-				pStmt.setString(2, "0");
+				pStmt.setString(3, "0");
 			}
 			pStmt.execute();
 			int autoIncKeyFromApi = -1;
@@ -90,24 +90,26 @@ public class CategoryDaoImpl implements CategoryDao {
 		}
 
 		return -1;
+
 	}
 
 	@Override
-	public Category getCategoryById(Integer id) {
+	public BlogEntryTagRef getBlogEntryTagRefById(Integer id) {
 		ResultSet result = null;
 		try {
-			String query = "SELECT * FROM categories WHERE id=? AND deleted='0'";
+			String query = "SELECT * FROM blog_entries_tag_ref WHERE id=? AND deleted='0'";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(query);
 			pStmt.setInt(1, id);
 			result = pStmt.executeQuery();
 			if (result.next()) {
-				Category category = new Category();
-				category.setCategoryName("category_name");
-				category.setId(result.getInt("id"));
-				category.setDeleted(result.getString("deleted").equals('0') ? false : true);
+				BlogEntryTagRef blogEntryTagRef = new BlogEntryTagRef();
 
-				return category;
+				blogEntryTagRef.setDeleted(result.getString("deleted").equals('0') ? false : true);
+				blogEntryTagRef.setBlogId(result.getInt("blog_id"));
+				blogEntryTagRef.setTagId(result.getInt("tag_id"));
+
+				return blogEntryTagRef;
 
 			} else {
 				return null;
@@ -127,28 +129,25 @@ public class CategoryDaoImpl implements CategoryDao {
 		}
 
 		return null;
-
 	}
 
 	@Override
-	public List<Category> getCategories(Integer start, Integer count) {
+	public List<BlogEntryTagRef> getBlogEntriesTagRef(Integer start, Integer count) {
 		ResultSet result = null;
-		List<Category> ls = new ArrayList<>();
+		List<BlogEntryTagRef> ls = new ArrayList<>();
 		try {
-			String query = "SELECT * FROM categories WHERE deleted='0' LIMIT ?,?";
+			String query = "SELECT * FROM blog_entries_tag_ref WHERE deleted='0' LIMIT ?,?";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(query);
 			pStmt.setInt(1, start);
 			pStmt.setInt(2, count);
 			result = pStmt.executeQuery();
 			while (result.next()) {
-
-				Category category = new Category();
-				category.setId(result.getInt("id"));
-				category.setCategoryName("category_name");
-				category.setDeleted(result.getString("deleted").equals('0') ? false : true);
-
-				ls.add(category);
+				BlogEntryTagRef blogEntryTagRef = new BlogEntryTagRef();
+				blogEntryTagRef.setDeleted(result.getString("deleted").equals('0') ? false : true);
+				blogEntryTagRef.setBlogId(result.getInt("blog_id"));
+				blogEntryTagRef.setTagId(result.getInt("tag_id"));
+				ls.add(blogEntryTagRef);
 			}
 
 			return ls;
@@ -167,30 +166,32 @@ public class CategoryDaoImpl implements CategoryDao {
 		}
 
 		return null;
-
 	}
 
 	@Override
-	public List<Category> getCategories() {
+	public List<BlogEntryTagRef> getBlogEntriesTagRef() {
 
-		return getCategories(0,1000);
+		return getBlogEntriesTagRef(0, 1000);
 	}
 
 	@Override
-	public Boolean updateCategory(Category category) {
+	public Boolean updateBlogEntryTagRef(BlogEntryTagRef blogEntryTagRef) {
 		try {
 
-			String stmt = "UPDATE categories SET " + "category_name=? ,deleted=? " + "WHERE id=?";
+			String stmt = "UPDATE blog_entries_tag_ref SET " + "blog_id=? ,tag_id=?,cat_id=?,deleted=? "
+					+ "WHERE blog_id=?";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(stmt);
-			pStmt.setString(1, category.getCategoryName());
 
-			if (category.getDeleted()) {
-				pStmt.setString(2, "1");
+			pStmt.setInt(1, blogEntryTagRef.getBlogId());
+			pStmt.setInt(2, blogEntryTagRef.getTagId());
+
+			if (blogEntryTagRef.getDeleted()) {
+				pStmt.setString(3, "1");
 			} else {
-				pStmt.setString(2, "0");
+				pStmt.setString(3, "0");
 			}
-			pStmt.setInt(3, category.getId());
+
 			Boolean result = pStmt.execute();
 			return result;
 		} catch (Exception exp) {
@@ -203,13 +204,10 @@ public class CategoryDaoImpl implements CategoryDao {
 	}
 
 	@Override
-	public void deleteCategory(Integer id) {
-
-		Category c = getCategoryById(id);
-		// System.out.println(c.getCategoryName());
-
-		c.setDeleted(true);
-		updateCategory(c);
+	public void deleteBlogEntryTagRef(Integer id) {
+		BlogEntryTagRef betr = getBlogEntryTagRefById(id);
+		betr.setDeleted(true);
+		updateBlogEntryTagRef(betr);
 
 	}
 

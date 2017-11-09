@@ -1,7 +1,4 @@
 package com.letspeer.blog.dao.impl;
-/**
-* author alaa abuzaghleh
-**/
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,16 +9,20 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.letspeer.blog.dao.UserDao;
-import com.letspeer.blog.model.User;
+import com.letspeer.blog.dao.AttachmentDao;
+import com.letspeer.blog.model.Attachment;
+import com.letspeer.blog.model.Comment;
 
-public class UserDaoImpl implements UserDao {
+public class AttachmentDaoImpl  implements AttachmentDao{
+	
+	
+	
 	private String dbUrl;
 	private String dbUser;
 	private String dbUserPwd;
 	private Connection connection;
 
-	public UserDaoImpl(String dbUrl, String dbUser, String dbUserPwd) {
+	public AttachmentDaoImpl(String dbUrl, String dbUser, String dbUserPwd) {
 		this.dbUrl = dbUrl;
 		this.dbUser = dbUser;
 		this.dbUserPwd = dbUserPwd;
@@ -38,6 +39,7 @@ public class UserDaoImpl implements UserDao {
 		} catch (Exception exp) {
 			exp.printStackTrace();
 		}
+		
 	}
 
 	@Override
@@ -49,28 +51,26 @@ public class UserDaoImpl implements UserDao {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 	}
-
+	
+	
 	@Override
-	public Integer addUser(User user) {
+	public Integer addAttachment(Attachment attachment) {
 		ResultSet rs = null;
 		try {
-			String stmt = "INSERT INTO users "
-					+ "(`first_name`,`last_name`,`email`,`password`,`profile_picture`,`about_me`,`deleted`) VALUES"
-					+ "(?,?,?,?,?,?,?)";
+			String stmt = "INSERT INTO attachment "
+					+ "(`file_bath`,`blog_id`,`deleted`) VALUES"
+					+ "(?,?,?)";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(stmt,Statement.RETURN_GENERATED_KEYS);
-			pStmt.setString(1, user.getFirstName());
-			pStmt.setString(2, user.getLastName());
-			pStmt.setString(3, user.getEmail());
-			pStmt.setString(4, user.getPassword());
-			pStmt.setString(5, user.getProfilePicture());
-			pStmt.setString(6, user.getAboutMe());
-			if (user.getDeleted()) {
-				pStmt.setString(7, "1");
+			pStmt.setString(1, attachment.getFileBath());
+			pStmt.setInt(2, attachment.getBlogId());
+	
+			if (attachment.getDeleted()) {
+				pStmt.setString(3, "1");
 			} else {
-				pStmt.setString(7, "0");
+				pStmt.setString(3, "0"); 
 			}
 			pStmt.execute();
 			int autoIncKeyFromApi = -1;
@@ -90,7 +90,7 @@ public class UserDaoImpl implements UserDao {
 			try {
 				rs.close();
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+			
 				e.printStackTrace();
 			}
 			disconnectDb();
@@ -100,24 +100,22 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public User getUserById(Integer id) {
+	public Attachment getAttachmentById(Integer id) {
 		ResultSet result = null;
 		try {
-			String query = "SELECT * FROM users WHERE id=? AND deleted='0'";
+			String query = "SELECT * FROM attachment WHERE id=? AND deleted='0'";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(query);
 			pStmt.setInt(1, id);
 			result = pStmt.executeQuery();
 			if (result.next()) {
-				User user = new User();
-				user.setAboutMe(result.getString("about_me"));
-				user.setDeleted(result.getString("deleted").equals('0') ? false : true);
-				user.setEmail(result.getString("email"));
-				user.setFirstName(result.getString("first_name"));
-				user.setId(result.getInt("id"));
-				user.setLastName(result.getString("last_name"));
-				user.setProfilePicture(result.getString("profile_picture"));
-				return user;
+				Attachment attachment = new Attachment();
+				attachment.setFileBath(result.getString("file_bath"));
+				attachment.setId(result.getInt("id"));
+				attachment.setBlogId(result.getInt("blog_id"));
+				attachment.setDeleted(result.getString("deleted").equals('0') ? false : true);
+
+				return attachment;
 
 			} else {
 				return null;
@@ -140,26 +138,23 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public List<User> getUsers(Integer startRow, Integer rowCount) {
+	public List<Attachment> getAttachments(Integer start, Integer count) {
 		ResultSet result = null;
-		List<User> ls = new ArrayList<>();
+		List<Attachment> ls = new ArrayList<>();
 		try {
-			String query = "SELECT * FROM users WHERE deleted='0' LIMIT ?,?";
+			String query = "SELECT * FROM attachment WHERE deleted='0' LIMIT ?,?";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(query);
-			pStmt.setInt(1, startRow);
-			pStmt.setInt(2, rowCount);
+			pStmt.setInt(1, start);
+			pStmt.setInt(2, count);
 			result = pStmt.executeQuery();
 			while (result.next()) {
-				User user = new User();
-				user.setAboutMe(result.getString("about_me"));
-				user.setDeleted(result.getString("deleted").equals('0') ? false : true);
-				user.setEmail(result.getString("email"));
-				user.setFirstName(result.getString("first_name"));
-				user.setId(result.getInt("id"));
-				user.setLastName(result.getString("last_name"));
-				user.setProfilePicture(result.getString("profile_picture"));
-				ls.add(user);
+				Attachment attachment = new Attachment();
+				attachment.setFileBath(result.getString("file_bath"));
+				attachment.setId(result.getInt("id"));
+				attachment.setBlogId(result.getInt("blog_id"));
+				attachment.setDeleted(result.getString("deleted").equals('0') ? false : true);
+				ls.add(attachment);
 			}
 
 			return ls;
@@ -178,34 +173,33 @@ public class UserDaoImpl implements UserDao {
 		}
 
 		return null;
+
 	}
 
 	@Override
-	public List<User> getUsers() {
-		return getUsers(0, 1000);
+	public List<Attachment> getAttachments() {
+		
+		return getAttachments(0,1000);
 	}
 
 	@Override
-	public Boolean updateUser(User user) {
+	public Boolean updateAttachment(Attachment attachment) {
 		try {
 
-			String stmt = "UPDATE users SET "
-					+ "first_name=? ,last_name=?,email=? ,password=? ,profile_picture=?,about_me=? ,deleted=? "
+			String stmt = "UPDATE attachment SET "
+					+ "file_bath=? ,blog_id=? ,deleted=? "
 					+ "WHERE id=?";
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(stmt);
-			pStmt.setString(1, user.getFirstName());
-			pStmt.setString(2, user.getLastName());
-			pStmt.setString(3, user.getEmail());
-			pStmt.setString(4, user.getPassword());
-			pStmt.setString(5, user.getProfilePicture());
-			pStmt.setString(6, user.getAboutMe());
-			if (user.getDeleted()) {
-				pStmt.setString(7, "1");
+			pStmt.setString(1, attachment.getFileBath());
+			pStmt.setInt(2, attachment.getBlogId());
+			
+			if (attachment.getDeleted()) {
+				pStmt.setString(3, "1");
 			} else {
-				pStmt.setString(7, "0");
+				pStmt.setString(3, "0");
 			}
-			pStmt.setInt(8, user.getId());
+			pStmt.setInt(4, attachment.getId());
 			Boolean result = pStmt.execute();
 			return result;
 		} catch (Exception exp) {
@@ -218,11 +212,13 @@ public class UserDaoImpl implements UserDao {
 	}
 
 	@Override
-	public void deleteUser(Integer id) {
-		User u = getUserById(id);
-		u.setDeleted(true);
-		updateUser(u);
-
+	public void deleteAttachment(Integer id) {
+		Attachment a = getAttachmentById(id);
+		a.setDeleted(true);
+		updateAttachment(a);
+		
 	}
+
+	
 
 }

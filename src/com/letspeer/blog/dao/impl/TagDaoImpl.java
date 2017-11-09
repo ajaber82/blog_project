@@ -173,7 +173,7 @@ public class TagDaoImpl implements TagDao {
 	@Override
 	public List<Tag> getTags() {
 
-		return null;
+		return getTags(0,1000);
 	}
 
 	@Override

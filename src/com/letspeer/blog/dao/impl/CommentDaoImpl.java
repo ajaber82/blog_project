@@ -6,10 +6,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.letspeer.blog.dao.CommentDao;
 import com.letspeer.blog.model.Comment;
+
 
 public class CommentDaoImpl implements CommentDao{
 	
@@ -60,7 +63,11 @@ public class CommentDaoImpl implements CommentDao{
 			connectDb();
 			PreparedStatement pStmt = connection.prepareStatement(stmt,Statement.RETURN_GENERATED_KEYS);
 			pStmt.setString(1, comment.getCommentBody());
-			pStmt.setLong(2, comment.getCreatedTime());
+			if(comment.getCreatedTime()!=null) {
+				pStmt.setLong(2, comment.getCreatedTime());
+			}else {
+				pStmt.setNull(2, Types.BIGINT);
+			}
 			pStmt.setInt(3, comment.getUserId());
 			pStmt.setInt(4, comment.getBlogId());
 	
@@ -98,31 +105,131 @@ public class CommentDaoImpl implements CommentDao{
 
 	@Override
 	public Comment getCommentById(Integer id) {
-		// TODO Auto-generated method stub
+		ResultSet result = null;
+		try {
+			String query = "SELECT * FROM comments WHERE id=? AND deleted='0'";
+			connectDb();
+			PreparedStatement pStmt = connection.prepareStatement(query);
+			pStmt.setInt(1, id);
+			result = pStmt.executeQuery();
+			if (result.next()) {
+				Comment comment = new Comment();
+				comment.setCommentBody(result.getString("comment_body"));
+				comment.setCreatedTime(result.getLong("created_time"));
+				comment.setId(result.getInt("id"));
+				comment.setBlogId(result.getInt("blog_id"));
+				comment.setUserId(result.getInt("user_id"));
+				comment.setDeleted(result.getString("deleted").equals('0') ? false : true);
+
+				return comment;
+
+			} else {
+				return null;
+			}
+
+		} catch (Exception exp) {
+			exp.printStackTrace();
+		} finally {
+			if (result != null) {
+				try {
+					result.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			disconnectDb();
+		}
+
 		return null;
 	}
 
 	@Override
 	public List<Comment> getComments(Integer start, Integer count) {
-		// TODO Auto-generated method stub
+		ResultSet result = null;
+		List<Comment> ls = new ArrayList<>();
+		try {
+			String query = "SELECT * FROM comments WHERE deleted='0' LIMIT ?,?";
+			connectDb();
+			PreparedStatement pStmt = connection.prepareStatement(query);
+			pStmt.setInt(1, start);
+			pStmt.setInt(2, count);
+			result = pStmt.executeQuery();
+			while (result.next()) {
+				Comment comment = new Comment();
+				comment.setCommentBody(result.getString("comment_body"));
+				comment.setCreatedTime(result.getLong("created_time"));
+				comment.setId(result.getInt("id"));
+				comment.setBlogId(result.getInt("blog_id"));
+				comment.setUserId(result.getInt("user_id"));
+				comment.setDeleted(result.getString("deleted").equals('0') ? false : true);
+				ls.add(comment);
+			}
+
+			return ls;
+
+		} catch (Exception exp) {
+			exp.printStackTrace();
+		} finally {
+			if (result != null) {
+				try {
+					result.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+			disconnectDb();
+		}
+
 		return null;
+
 	}
 
 	@Override
 	public List<Comment> getComments() {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return getComments(0,1000);
 	}
 
 	@Override
 	public Boolean updateComment(Comment comment) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+
+			String stmt = "UPDATE comments SET "
+					+ "comment_body=? ,created_time=?,user_id=? ,blog_id=? ,deleted=? "
+					+ "WHERE id=?";
+			connectDb();
+			PreparedStatement pStmt = connection.prepareStatement(stmt);
+			pStmt.setString(1, comment.getCommentBody());
+			if(comment.getCreatedTime()!=null) {
+				pStmt.setLong(2, comment.getCreatedTime());
+			}else {
+				pStmt.setNull(2, Types.BIGINT);
+			}
+			pStmt.setInt(3, comment.getBlogId());
+			pStmt.setInt(4, comment.getUserId());
+			if (comment.getDeleted()) {
+				pStmt.setString(5, "1");
+			} else {
+				pStmt.setString(5, "0");
+			}
+			pStmt.setInt(6, comment.getId());
+			Boolean result = pStmt.execute();
+			return result;
+		} catch (Exception exp) {
+			exp.printStackTrace();
+		} finally {
+			disconnectDb();
+		}
+
+		return false;
 	}
 
 	@Override
 	public void deleteComment(Integer id) {
-		// TODO Auto-generated method stub
+		Comment c = getCommentById(id);
+		c.setDeleted(true);
+		updateComment(c);
+
 		
 	}
 	
